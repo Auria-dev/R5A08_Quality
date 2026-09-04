@@ -16,7 +16,7 @@ namespace R508_Revisions.Model.EntityFramework
         [Column("mrq_nom")]
         public required string nomMarque { get; set; }
 
-        [InverseProperty(nameof(Produit.idProduit))]
+        [InverseProperty(nameof(Produit.idMarqueNavigation))]
         public virtual ICollection<Produit> Produits { get; set; } = new List<Produit>();
     }
 }
