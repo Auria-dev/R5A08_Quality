@@ -54,6 +54,6 @@ namespace R508_Revisions.Model.EntityFramework
 
         [ForeignKey(nameof(idMarque))]
         [InverseProperty(nameof(TypeProduit.Produits))]
-        public virtual Marque idTypeProduitNavigation { get; set; } = null!;
+        public virtual TypeProduit idTypeProduitNavigation { get; set; } = null!;
     }    
 }

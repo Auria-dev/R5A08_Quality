@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using R508_Revisions.Model.EntityFramework;
+
 namespace R508_Revisions
 {
     public class Program
@@ -13,6 +16,8 @@ namespace R508_Revisions
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<ProduitsDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbCoreConnectionString")));
 
             var app = builder.Build();
 

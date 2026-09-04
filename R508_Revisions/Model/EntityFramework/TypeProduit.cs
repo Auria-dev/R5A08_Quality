@@ -17,7 +17,7 @@ namespace R508_Revisions.Model.EntityFramework
         [Column("tpp_nom")]
         public required string nomTypeProduit { get; set; }
 
-        [InverseProperty(nameof(Produit.idProduit))]
+        [InverseProperty(nameof(Produit.idTypeProduitNavigation))]
         public virtual ICollection<Produit> Produits { get; set; } = new List<Produit>();
 
     }

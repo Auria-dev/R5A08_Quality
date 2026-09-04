@@ -41,13 +41,11 @@ namespace R508_Revisions.Model.EntityFramework
             {
                 entity.HasOne(d => d.idMarqueNavigation)
                     .WithMany(p => p.Produits)
-                    .HasForeignKey(d => d.idMarque)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_produit_marque");
 
                 entity.HasOne(d => d.idTypeProduitNavigation)
                     .WithMany(p => p.Produits)
-                    .HasForeignKey(d => d.idTypeProduit)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_produit_typeproduit");
             });
