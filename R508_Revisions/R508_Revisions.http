@@ -1,0 +1,6 @@
+@R508_Revisions_HostAddress = http://localhost:5054
+
+GET {{R508_Revisions_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
