@@ -48,11 +48,11 @@ namespace R508_Revisions.Model.EntityFramework
         [Column("prd_stockmax")]
         public int stockMax { get; set; }
 
-        [ForeignKey(nameof(idTypeProduit))]
+        [ForeignKey(nameof(idMarque))]
         [InverseProperty(nameof(Marque.Produits))]
         public virtual Marque idMarqueNavigation { get; set; } = null!;
 
-        [ForeignKey(nameof(idMarque))]
+        [ForeignKey(nameof(idTypeProduit))]
         [InverseProperty(nameof(TypeProduit.Produits))]
         public virtual TypeProduit idTypeProduitNavigation { get; set; } = null!;
     }    
