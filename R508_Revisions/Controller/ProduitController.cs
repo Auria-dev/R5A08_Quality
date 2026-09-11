@@ -43,7 +43,7 @@ namespace R508_Revisions.Controller
         }
 
         [HttpGet]
-        [Route("[action]/{id}")]
+        [Route("[action]/{idProduit}")]
         [ActionName("GetProduitsById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -55,7 +55,7 @@ namespace R508_Revisions.Controller
         }
 
         [HttpGet]
-        [Route("[action]/{string}")]
+        [Route("[action]/{nomProduit}")]
         [ActionName("GetProduitsByName")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -67,8 +67,8 @@ namespace R508_Revisions.Controller
         }
 
         [HttpGet]
-        [Route("[action]/{string}")]
-        [ActionName("GetProduitsByName")]
+        [Route("[action]/{idMarque}")]
+        [ActionName("GetProduitsByMarque")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Produit>> GetByMarque(int idMarque)
