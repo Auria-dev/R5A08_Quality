@@ -66,6 +66,19 @@ namespace R508_Revisions.Controller
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route("[action]/{string}")]
+        [ActionName("GetProduitsByName")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Produit>> GetByMarque(int idMarque)
+        {
+            var result = await manager.GetByMarqueAsync(idMarque);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
