@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using R508_Revisions.Model.EntityFramework;
+using R508_Revisions.Model.Repository;
+using R508_Revisions.Model.Repository.Implementation;
 
 namespace R508_Revisions
 {
@@ -11,12 +13,14 @@ namespace R508_Revisions
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Dependency Injection
+            builder.Services.AddScoped<IProduitRepository, ProduitRepository>();
             builder.Services.AddDbContext<ProduitsDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbCoreConnectionString")));
 
             var app = builder.Build();
@@ -29,12 +33,8 @@ namespace R508_Revisions
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }
