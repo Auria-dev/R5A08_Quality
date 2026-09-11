@@ -11,5 +11,6 @@ namespace R508_Revisions.Model.Repository.Interface
         Task AddAsync(T entity);
         Task UpdateAsync(T entityToUpdate, T entity);
         Task DeleteAsync(T entity);
+        Task SaveAsync();
     }
 }

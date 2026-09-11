@@ -10,13 +10,13 @@ namespace R508_Revisions.Model.Repository.Implementation
         public async Task AddAsync(Produit entity)
         {
             await context.AddAsync(entity);
-            await context.SaveChangesAsync();
+            await SaveAsync();
         }
 
         public async Task DeleteAsync(Produit entity)
         {
             context.Produits.Remove(entity);
-            await context.SaveChangesAsync();
+            await SaveAsync();
         }
 
         public async Task<ActionResult<IEnumerable<Produit>>> GetAllAsync()
@@ -55,6 +55,11 @@ namespace R508_Revisions.Model.Repository.Implementation
             return await context.Produits.FirstOrDefaultAsync(e => e.nomProduit == str);
         }
 
+        public async Task SaveAsync()
+        {
+            await context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<Produit>> SearchByNameAsync(string term)
         {
             return await context.Produits
@@ -74,7 +79,7 @@ namespace R508_Revisions.Model.Repository.Implementation
             entityOld.stockReel = entityNew.stockReel;
             entityOld.stockMin = entityNew.stockMin;
             entityOld.stockMax = entityNew.stockMax;
-            await context.SaveChangesAsync();
+            await SaveAsync();
         }
     }
 }
