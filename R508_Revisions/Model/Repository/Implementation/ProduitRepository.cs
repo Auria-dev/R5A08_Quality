@@ -9,8 +9,7 @@ namespace R508_Revisions.Model.Repository.Implementation
         public async Task AddAsync(Produit entity)
         {
             await context.AddAsync(entity);
-            await SaveAsync();
-        }
+            await SaveAsync();        }
 
         public async Task DeleteAsync(Produit entity)
         {

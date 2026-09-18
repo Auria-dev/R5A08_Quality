@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using R508_Revisions.Model.DTO;
 using R508_Revisions.Model.EntityFramework;
 using R508_Revisions.Model.Repository;
 using R508_Revisions.Model.Repository.Implementation;
@@ -13,17 +14,29 @@ namespace R508_Revisions.Controller
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Produit>> PostProduit(Produit entity)
+        public async Task<ActionResult<ProduitDto>> PostProduit(Produit entity)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
             await manager.AddAsync(entity);
-            return CreatedAtAction(nameof(GetProduitById), new { idProduit = entity.idProduit }, entity);
+
+            var createdProduit = await manager.GetByIdWithDetailsAsync(entity.idProduit);
+
+            var dto = new ProduitDto
+            {
+                Id = createdProduit!.idProduit,
+                Nom = createdProduit.nomProduit,
+                Type = createdProduit.idTypeProduitNavigation?.nomTypeProduit,
+                Marque = createdProduit.idMarqueNavigation?.nomMarque
+            };
+
+            return CreatedAtAction(nameof(GetProduitById), new { id = dto.Id }, dto);
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteUtilisateur(int id)
+        public async Task<IActionResult> DeleteProduit(int id)
         {
             ActionResult<Produit> utilisateur = await manager.GetByIdAsync(id);
             if (utilisateur == null) return NotFound();
@@ -35,10 +48,17 @@ namespace R508_Revisions.Controller
         [ActionName("GetProduits")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<IEnumerable<Produit>>> GetAllProduit()
+        public async Task<ActionResult<IEnumerable<ProduitDto>>> GetAllProduit()
         {
-            var res = await manager.GetAllAsync();
-            if (res == null) return NotFound();
+            var produits = await manager.GetAllWithDetailsAsync();
+            var res = produits.Select(p => new ProduitDto
+            {
+                Id= p.idProduit,
+                Nom = p.nomProduit,
+                Type = p.idTypeProduitNavigation.nomTypeProduit,
+                Marque = p.idMarqueNavigation.nomMarque,
+            });
+
             return Ok(res);
         }
 
@@ -47,11 +67,25 @@ namespace R508_Revisions.Controller
         [ActionName("GetProduitsById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Produit>> GetProduitById(int id)
+        public async Task<ActionResult<ProduitDto>> GetProduitById(int id)
         {
-            var result = await manager.GetByIdAsync(id);
-            if (result == null || result.Value == null) return NotFound();
-            return Ok(result.Value);
+            var produit = await manager.GetByIdWithDetailsAsync(id);
+            if (produit == null) return NotFound();
+
+            var dto = new ProduitDetailDto
+            {
+                Id = produit.idProduit,
+                Nom = produit.nomProduit,
+                Description = produit.description,
+                Nomphoto = produit.nomPhoto,
+                Uriphoto = produit.uriPhoto,
+                Type = produit.idTypeProduitNavigation?.nomTypeProduit,
+                Marque = produit.idMarqueNavigation?.nomMarque,
+                Stock = produit.stockReel,
+                EnReappro = produit.stockReel < produit.stockMin
+            };
+
+            return Ok(dto);
         }
 
         [HttpGet]
@@ -77,7 +111,6 @@ namespace R508_Revisions.Controller
             if (result == null) return NotFound();
             return Ok(result);
         }
-
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

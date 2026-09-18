@@ -5,15 +5,8 @@ namespace R508_Revisions.Model.EntityFramework
 {
     public partial class ProduitsDBContext : DbContext
     {
-        public ProduitsDBContext()
-        {
-
-        }
-
-        public ProduitsDBContext(DbContextOptions<ProduitsDBContext> options)
-            : base(options)
-        {
-        }
+        public ProduitsDBContext() { }
+        public ProduitsDBContext(DbContextOptions<ProduitsDBContext> options) : base(options) { }
 
         public virtual DbSet<Produit> Produits { get; set; } = null!;
         public virtual DbSet<TypeProduit> TypeProduits { get; set; } = null!;
