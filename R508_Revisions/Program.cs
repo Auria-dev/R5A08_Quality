@@ -21,6 +21,8 @@ namespace R508_Revisions
 
             // Dependency Injection
             builder.Services.AddScoped<IProduitRepository, ProduitRepository>();
+
+            // Database connection configuration
             builder.Services.AddDbContext<ProduitsDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbCoreConnectionString")));
 
             var app = builder.Build();

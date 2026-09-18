@@ -17,7 +17,7 @@ namespace R508_Revisions.Controller
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             await manager.AddAsync(entity);
-            return CreatedAtAction("GetUtilisateur", new { id = entity.idProduit}, entity);
+            return CreatedAtAction(nameof(GetProduitById), new { idProduit = entity.idProduit }, entity);
         }
 
         [HttpDelete("{id}")]
@@ -50,8 +50,8 @@ namespace R508_Revisions.Controller
         public async Task<ActionResult<Produit>> GetProduitById(int id)
         {
             var result = await manager.GetByIdAsync(id);
-            if (result == null) return NotFound();
-            return Ok(result);
+            if (result == null || result.Value == null) return NotFound();
+            return Ok(result.Value);
         }
 
         [HttpGet]
