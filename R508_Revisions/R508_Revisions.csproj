@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\**" />
+    <Compile Remove="Model\DataManager\**" />
     <Content Remove="Controllers\**" />
+    <Content Remove="Model\DataManager\**" />
     <EmbeddedResource Remove="Controllers\**" />
+    <EmbeddedResource Remove="Model\DataManager\**" />
     <None Remove="Controllers\**" />
+    <None Remove="Model\DataManager\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,10 +26,6 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Model\DataManager\" />
   </ItemGroup>
 
 </Project>

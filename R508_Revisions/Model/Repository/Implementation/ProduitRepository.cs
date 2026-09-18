@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using R508_Revisions.Entities;
 using R508_Revisions.Model.EntityFramework;
 
 namespace R508_Revisions.Model.Repository.Implementation
