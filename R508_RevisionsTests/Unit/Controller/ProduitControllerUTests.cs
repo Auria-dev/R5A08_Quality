@@ -1,153 +1,151 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using R508_Revisions.Model.DTO;
 using R508_Revisions.Model.EntityFramework;
 using R508_Revisions.Model.Repository;
 
 namespace R508_Revisions.Controller.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class ProduitControllerUTests
     {
-        [TestMethod()]
-        public void GetProduit_ExistingId_ReturnsOkResult()
+        [TestMethod]
+        public async Task GetProduitById_ExistingId_ReturnsOkResult()
         {
             // arrange
-            Produit prod = new Produit
+            var prod = new Produit
             {
                 idProduit = 1,
                 nomProduit = "Produit test",
-                description = "Description du produit test",
-                nomPhoto = "test.jpg",
-                uriPhoto = "/images/test.jpg",
-                idTypeProduit = 1,
-                idMarque = 1,
+                description = "Description",
+                nomPhoto = "photo.jpg",
+                uriPhoto = "/photo.jpg",
+                idTypeProduitNavigation = new TypeProduit { nomTypeProduit = "Type A" },
+                idMarqueNavigation = new Marque { nomMarque = "Marque B" },
                 stockReel = 10,
-                stockMin = 2,
-                stockMax = 50
+                stockMin = 2
             };
 
-            Mock<IProduitRepository> mockRepository = new Mock<IProduitRepository>();
-            mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(prod);
-            ProduitController produitController = new ProduitController(mockRepository.Object);
+            var mockRepository = new Mock<IProduitRepository>();
+            mockRepository.Setup(x => x.GetByIdWithDetailsAsync(1)).ReturnsAsync(prod);
+            var produitController = new ProduitController(mockRepository.Object);
 
             // act
-            ActionResult<Produit> actionResult = produitController.GetProduitById(prod.idProduit).Result;
+            var actionResult = await produitController.GetProduitById(1);
 
             // assert
             Assert.IsInstanceOfType(actionResult.Result, typeof(OkObjectResult));
-            OkObjectResult okResult = (OkObjectResult)actionResult.Result;
-            Assert.IsNotNull(okResult);
+            var okResult = (OkObjectResult)actionResult.Result!;
             Assert.AreEqual(200, okResult.StatusCode);
+            Assert.IsInstanceOfType(okResult.Value, typeof(ProduitDetailDto));
         }
 
-        [TestMethod()]
-        public void GetProduit_UnknownId_ReturnsNotFoundResult()
+        [TestMethod]
+        public async Task GetProduitById_UnknownId_ReturnsNotFoundResult()
         {
             // arrange
-            Mock<IProduitRepository> mockRepository = new Mock<IProduitRepository>();
-            ProduitController produitController = new ProduitController(mockRepository.Object);
+            var mockRepository = new Mock<IProduitRepository>();
+            mockRepository.Setup(x => x.GetByIdWithDetailsAsync(-1)).ReturnsAsync((Produit?)null);
+            var produitController = new ProduitController(mockRepository.Object);
 
             // act
-            var actionResult = produitController.GetProduitById(-1).Result;
+            var actionResult = await produitController.GetProduitById(-1);
 
             // assert
             Assert.IsInstanceOfType(actionResult.Result, typeof(NotFoundResult));
-            NotFoundResult notFoundResult = (NotFoundResult)actionResult.Result;
+            var notFoundResult = (NotFoundResult)actionResult.Result!;
             Assert.AreEqual(404, notFoundResult.StatusCode);
         }
 
-        [TestMethod()]
-        public void PostProduit_ValidProduct_ReturnsCreatedAtAction()
+        [TestMethod]
+        public async Task PostProduit_ValidProduct_ReturnsCreatedAtAction()
         {
             // arrange
-            Produit prod = new Produit
+            var prod = new Produit
             {
                 idProduit = 1,
                 nomProduit = "Produit test",
-                description = "Description du produit test",
-                nomPhoto = "test.jpg",
-                uriPhoto = "/images/test.jpg",
-                idTypeProduit = 1,
-                idMarque = 1,
+                description = "Description",
+                nomPhoto = "photo.jpg",
+                uriPhoto = "/photo.jpg",
+                idTypeProduitNavigation = new TypeProduit { nomTypeProduit = "Type A" },
+                idMarqueNavigation = new Marque { nomMarque = "Marque B" },
                 stockReel = 10,
-                stockMin = 2,
-                stockMax = 50
+                stockMin = 2
             };
 
-            Mock<IProduitRepository> mockRepository = new Mock<IProduitRepository>();
+            var mockRepository = new Mock<IProduitRepository>();
             mockRepository.Setup(r => r.AddAsync(It.IsAny<Produit>())).Returns(Task.CompletedTask);
-            ProduitController produitController = new ProduitController(mockRepository.Object);
+            mockRepository.Setup(r => r.GetByIdWithDetailsAsync(1)).ReturnsAsync(prod);
+
+            var produitController = new ProduitController(mockRepository.Object);
 
             // act
-            ActionResult<Produit> actionResult = produitController.PostProduit(prod).Result;
+            var actionResult = await produitController.PostProduit(prod);
 
             // assert
-            Assert.IsInstanceOfType(actionResult.Result,typeof(CreatedAtActionResult));
-            CreatedAtActionResult createdResult = (CreatedAtActionResult)actionResult.Result;
+            Assert.IsInstanceOfType(actionResult.Result, typeof(CreatedAtActionResult));
+            var createdResult = (CreatedAtActionResult)actionResult.Result!;
             Assert.AreEqual(201, createdResult.StatusCode);
+            Assert.IsInstanceOfType(createdResult.Value, typeof(ProduitDto));
             mockRepository.Verify(r => r.AddAsync(It.Is<Produit>(p => p == prod)), Times.Once);
         }
 
-        [TestMethod()]
-        public void PutProduit_IdMismatch_ReturnsBadRequest()
+        [TestMethod]
+        public async Task PutProduit_IdMismatch_ReturnsBadRequest()
         {
             // arrange
-            Produit prod = new Produit
+            var dto = new ProduitUpdateDto
             {
-                idProduit = 1,
-                nomProduit = "Produit test",
-                description = "Description du produit test",
-                nomPhoto = "test.jpg",
-                uriPhoto = "/images/test.jpg",
-                idTypeProduit = 1,
-                idMarque = 1,
-                stockReel = 10,
-                stockMin = 2,
-                stockMax = 50
+                IdProduit = 1,
+                NomProduit = "Produit test"
             };
 
-            Mock<IProduitRepository> mockRepository = new Mock<IProduitRepository>();
-            ProduitController produitController = new ProduitController(mockRepository.Object);
+            var mockRepository = new Mock<IProduitRepository>();
+            var produitController = new ProduitController(mockRepository.Object);
 
             // act
-            IActionResult actionResult = produitController.PutProduit(2, prod).Result;
+            var actionResult = await produitController.PutProduit(2, dto);
 
             // assert
             Assert.IsInstanceOfType(actionResult, typeof(BadRequestResult));
-            BadRequestResult badRequestResult = (BadRequestResult)actionResult;
+            var badRequestResult = (BadRequestResult)actionResult;
             Assert.AreEqual(400, badRequestResult.StatusCode);
-            mockRepository.Verify(r => r.SaveAsync(),Times.Never);
+            mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Produit>(), It.IsAny<Produit>()), Times.Never);
         }
 
-        [TestMethod()]
-        public void DeleteProduit_ExistingId_ReturnsNoContent()
+        [TestMethod]
+        public async Task DeleteProduit_ExistingId_ReturnsNoContent()
         {
             // arrange
-            Produit prod = new Produit
+            var prod = new Produit
             {
                 idProduit = 1,
                 nomProduit = "Produit test",
-                description = "Description du produit test",
-                nomPhoto = "test.jpg",
-                uriPhoto = "/images/test.jpg",
-                idTypeProduit = 1,
-                idMarque = 1,
+                description = "Description",
+                nomPhoto = "photo.jpg",
+                uriPhoto = "/photo.jpg",
+                idTypeProduitNavigation = new TypeProduit { nomTypeProduit = "Type A" },
+                idMarqueNavigation = new Marque { nomMarque = "Marque B" },
                 stockReel = 10,
-                stockMin = 2,
-                stockMax = 50
+                stockMin = 2
             };
 
-            Mock<IProduitRepository> mockRepository = new Mock<IProduitRepository>();
-            mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(prod);
-            ProduitController produitController = new ProduitController(mockRepository.Object);
+            var mockRepository = new Mock<IProduitRepository>();
+            mockRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(prod);
+            mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Produit>())).Returns(Task.CompletedTask);
+
+            var produitController = new ProduitController(mockRepository.Object);
 
             // act
-            var actionResult = produitController.DeleteUtilisateur(1).Result;
+            var actionResult = await produitController.DeleteProduit(1);
 
             // assert
             Assert.IsInstanceOfType(actionResult, typeof(NoContentResult));
-            NoContentResult noContentResult = (NoContentResult)actionResult;
+            var noContentResult = (NoContentResult)actionResult;
             Assert.AreEqual(204, noContentResult.StatusCode);
+            mockRepository.Verify(x => x.DeleteAsync(It.IsAny<Produit>()), Times.Once);
         }
     }
 }
