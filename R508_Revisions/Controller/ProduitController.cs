@@ -96,8 +96,23 @@ namespace R508_Revisions.Controller
         public async Task<ActionResult<Produit>> GetProduitByString(string str)
         {
             var result = await manager.GetByStringAsync(str);
-            if (result == null) return NotFound();
-            return Ok(result);
+            var produit = result.Value;
+            if (result == null || produit == null) return NotFound();
+
+            var dto = new ProduitDetailDto
+            {
+                Id = produit.idProduit,
+                Nom = produit.nomProduit,
+                Description = produit.description,
+                Nomphoto = produit.nomPhoto,
+                Uriphoto = produit.uriPhoto,
+                Type = produit.idTypeProduitNavigation?.nomTypeProduit,
+                Marque = produit.idMarqueNavigation?.nomMarque,
+                Stock = produit.stockReel,
+                EnReappro = produit.stockReel < produit.stockMin
+            };
+
+            return Ok(dto);
         }
 
         [HttpGet]
@@ -107,23 +122,50 @@ namespace R508_Revisions.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Produit>> GetByMarque(int idMarque)
         {
-            var result = await manager.GetByMarqueAsync(idMarque);
-            if (result == null) return NotFound();
-            return Ok(result);
+            var produits = await manager.GetByMarqueAsync(idMarque);
+
+            if (produits == null || !produits.Any()) return NotFound();
+
+            var dtos = produits.Select(p => new ProduitDto
+            {
+                Id = p.idProduit,
+                Nom = p.nomProduit,
+                Type = p.idTypeProduitNavigation?.nomTypeProduit,
+                Marque = p.idMarqueNavigation?.nomMarque
+            });
+
+            return Ok(dtos);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> PutProduit(int id, Produit entity)
+        public async Task<IActionResult> PutProduit(int id, ProduitUpdateDto dto)
         {
-            if (id != entity.idProduit) return BadRequest();
+            if (id != dto.IdProduit) return BadRequest();
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var userToUpdate = await manager.GetByIdAsync(id);
+            var existingResult = await manager.GetByIdAsync(id);
+            var userToUpdate = existingResult.Value;
+
             if (userToUpdate == null) return NotFound();
-            else await manager.UpdateAsync(userToUpdate.Value, entity);
+
+            var entity = new Produit
+            {
+                idProduit = dto.IdProduit,
+                nomProduit = dto.NomProduit,
+                description = dto.Description,
+                nomPhoto = dto.NomPhoto,
+                uriPhoto = dto.UriPhoto,
+                idTypeProduit = dto.IdTypeProduit,
+                idMarque = dto.IdMarque,
+                stockReel = dto.StockReel,
+                stockMin = dto.StockMin,
+                stockMax = dto.StockMax
+            };
+
+            await manager.UpdateAsync(userToUpdate, entity);
 
             return NoContent();
         }
