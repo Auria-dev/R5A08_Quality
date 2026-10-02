@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R508_Revisions", "R508_Revi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R508_RevisionsTests", "R508_RevisionsTests\R508_RevisionsTests.csproj", "{810DCFCA-04F1-4D05-9B42-0FB090DA2DAE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R508_Blazor", "R508_Blazor\R508_Blazor.csproj", "{C24C25AB-5F35-490F-9CEC-896C96C0A2F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{810DCFCA-04F1-4D05-9B42-0FB090DA2DAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{810DCFCA-04F1-4D05-9B42-0FB090DA2DAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{810DCFCA-04F1-4D05-9B42-0FB090DA2DAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C24C25AB-5F35-490F-9CEC-896C96C0A2F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C24C25AB-5F35-490F-9CEC-896C96C0A2F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C24C25AB-5F35-490F-9CEC-896C96C0A2F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C24C25AB-5F35-490F-9CEC-896C96C0A2F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

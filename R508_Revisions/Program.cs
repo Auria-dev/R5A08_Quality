@@ -1,6 +1,9 @@
 
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using R508_Revisions.Model.EntityFramework;
+using R508_Revisions.Model.Mapping;
 using R508_Revisions.Model.Repository;
 using R508_Revisions.Model.Repository.Implementation;
 
@@ -24,6 +27,10 @@ namespace R508_Revisions
 
             // Database connection configuration
             builder.Services.AddDbContext<ProduitsDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbCoreConnectionString")));
+
+            builder.Services.AddAutoMapper(cfg => {
+                cfg.ShouldMapMethod = _ => false;
+            }, typeof(MappingProfile));
 
             var app = builder.Build();
 

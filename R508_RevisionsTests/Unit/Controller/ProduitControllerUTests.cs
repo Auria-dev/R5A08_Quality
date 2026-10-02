@@ -4,15 +4,34 @@ using Moq;
 using R508_Revisions.Model.DTO;
 using R508_Revisions.Model.EntityFramework;
 using R508_Revisions.Model.Repository;
+using AutoMapper;
+using R508_Revisions.Model.Mapping;
+
 
 namespace R508_Revisions.Controller.Tests
 {
     [TestClass]
     public class ProduitControllerUTests
     {
+        private IMapper mapper = null;
+
+        [TestInitialize]
+        public async Task Setup()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.ShouldMapMethod = _ => false;
+                cfg.AddProfile<MappingProfile>();
+            });
+
+            mapper = config.CreateMapper();
+        }
+
         [TestMethod]
         public async Task GetProduitById_ExistingId_ReturnsOkResult()
         {
+            Assert.IsNotNull(typeof(IMapper).Assembly);
+            Console.WriteLine(typeof(IMapper).Assembly.FullName);
+
             // arrange
             var prod = new Produit
             {
@@ -29,7 +48,7 @@ namespace R508_Revisions.Controller.Tests
 
             var mockRepository = new Mock<IProduitRepository>();
             mockRepository.Setup(x => x.GetByIdWithDetailsAsync(1)).ReturnsAsync(prod);
-            var produitController = new ProduitController(mockRepository.Object);
+            var produitController = new ProduitController(mockRepository.Object, mapper);
 
             // act
             var actionResult = await produitController.GetProduitById(1);
@@ -47,7 +66,7 @@ namespace R508_Revisions.Controller.Tests
             // arrange
             var mockRepository = new Mock<IProduitRepository>();
             mockRepository.Setup(x => x.GetByIdWithDetailsAsync(-1)).ReturnsAsync((Produit?)null);
-            var produitController = new ProduitController(mockRepository.Object);
+            var produitController = new ProduitController(mockRepository.Object, mapper);
 
             // act
             var actionResult = await produitController.GetProduitById(-1);
@@ -79,7 +98,7 @@ namespace R508_Revisions.Controller.Tests
             mockRepository.Setup(r => r.AddAsync(It.IsAny<Produit>())).Returns(Task.CompletedTask);
             mockRepository.Setup(r => r.GetByIdWithDetailsAsync(1)).ReturnsAsync(prod);
 
-            var produitController = new ProduitController(mockRepository.Object);
+            var produitController = new ProduitController(mockRepository.Object, mapper);
 
             // act
             var actionResult = await produitController.PostProduit(prod);
@@ -103,7 +122,7 @@ namespace R508_Revisions.Controller.Tests
             };
 
             var mockRepository = new Mock<IProduitRepository>();
-            var produitController = new ProduitController(mockRepository.Object);
+            var produitController = new ProduitController(mockRepository.Object, mapper);
 
             // act
             var actionResult = await produitController.PutProduit(2, dto);
@@ -136,7 +155,7 @@ namespace R508_Revisions.Controller.Tests
             mockRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(prod);
             mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Produit>())).Returns(Task.CompletedTask);
 
-            var produitController = new ProduitController(mockRepository.Object);
+            var produitController = new ProduitController(mockRepository.Object, mapper);
 
             // act
             var actionResult = await produitController.DeleteProduit(1);

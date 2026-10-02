@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using R508_Revisions.Model.DTO;
 using R508_Revisions.Model.EntityFramework;
 using R508_Revisions.Model.Repository;
@@ -9,7 +10,7 @@ namespace R508_Revisions.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProduitController (IProduitRepository manager): ControllerBase
+    public class ProduitController (IProduitRepository manager, IMapper mapper): ControllerBase
     {
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -21,14 +22,7 @@ namespace R508_Revisions.Controller
             await manager.AddAsync(entity);
 
             var createdProduit = await manager.GetByIdWithDetailsAsync(entity.idProduit);
-
-            var dto = new ProduitDto
-            {
-                Id = createdProduit!.idProduit,
-                Nom = createdProduit.nomProduit,
-                Type = createdProduit.idTypeProduitNavigation?.nomTypeProduit,
-                Marque = createdProduit.idMarqueNavigation?.nomMarque
-            };
+            var dto = mapper.Map<ProduitDto>(createdProduit);
 
             return CreatedAtAction(nameof(GetProduitById), new { id = dto.Id }, dto);
         }
@@ -51,13 +45,7 @@ namespace R508_Revisions.Controller
         public async Task<ActionResult<IEnumerable<ProduitDto>>> GetAllProduit()
         {
             var produits = await manager.GetAllWithDetailsAsync();
-            var res = produits.Select(p => new ProduitDto
-            {
-                Id= p.idProduit,
-                Nom = p.nomProduit,
-                Type = p.idTypeProduitNavigation.nomTypeProduit,
-                Marque = p.idMarqueNavigation.nomMarque,
-            });
+            var res = mapper.Map<IEnumerable<ProduitDto>>(produits);
 
             return Ok(res);
         }
@@ -67,23 +55,11 @@ namespace R508_Revisions.Controller
         [ActionName("GetProduitsById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProduitDto>> GetProduitById(int id)
+        public async Task<ActionResult<ProduitDetailDto>> GetProduitById(int idProduit)
         {
-            var produit = await manager.GetByIdWithDetailsAsync(id);
+            var produit = await manager.GetByIdWithDetailsAsync(idProduit);
             if (produit == null) return NotFound();
-
-            var dto = new ProduitDetailDto
-            {
-                Id = produit.idProduit,
-                Nom = produit.nomProduit,
-                Description = produit.description,
-                Nomphoto = produit.nomPhoto,
-                Uriphoto = produit.uriPhoto,
-                Type = produit.idTypeProduitNavigation?.nomTypeProduit,
-                Marque = produit.idMarqueNavigation?.nomMarque,
-                Stock = produit.stockReel,
-                EnReappro = produit.stockReel < produit.stockMin
-            };
+            var dto = mapper.Map<ProduitDetailDto>(produit);
 
             return Ok(dto);
         }
@@ -93,24 +69,12 @@ namespace R508_Revisions.Controller
         [ActionName("GetProduitsByName")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Produit>> GetProduitByString(string str)
+        public async Task<ActionResult<ProduitDetailDto>> GetProduitByString(string nomProduit)
         {
-            var result = await manager.GetByStringAsync(str);
+            var result = await manager.GetByStringAsync(nomProduit);
             var produit = result.Value;
             if (result == null || produit == null) return NotFound();
-
-            var dto = new ProduitDetailDto
-            {
-                Id = produit.idProduit,
-                Nom = produit.nomProduit,
-                Description = produit.description,
-                Nomphoto = produit.nomPhoto,
-                Uriphoto = produit.uriPhoto,
-                Type = produit.idTypeProduitNavigation?.nomTypeProduit,
-                Marque = produit.idMarqueNavigation?.nomMarque,
-                Stock = produit.stockReel,
-                EnReappro = produit.stockReel < produit.stockMin
-            };
+            var dto = mapper.Map<ProduitDetailDto>(produit);
 
             return Ok(dto);
         }
@@ -120,19 +84,11 @@ namespace R508_Revisions.Controller
         [ActionName("GetProduitsByMarque")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Produit>> GetByMarque(int idMarque)
+        public async Task<ActionResult<IEnumerable<ProduitDto>>> GetByMarque(int idMarque)
         {
             var produits = await manager.GetByMarqueAsync(idMarque);
-
             if (produits == null || !produits.Any()) return NotFound();
-
-            var dtos = produits.Select(p => new ProduitDto
-            {
-                Id = p.idProduit,
-                Nom = p.nomProduit,
-                Type = p.idTypeProduitNavigation?.nomTypeProduit,
-                Marque = p.idMarqueNavigation?.nomMarque
-            });
+            var dtos = mapper.Map<IEnumerable<ProduitDto>>(produits);
 
             return Ok(dtos);
         }
@@ -150,20 +106,7 @@ namespace R508_Revisions.Controller
             var userToUpdate = existingResult.Value;
 
             if (userToUpdate == null) return NotFound();
-
-            var entity = new Produit
-            {
-                idProduit = dto.IdProduit,
-                nomProduit = dto.NomProduit,
-                description = dto.Description,
-                nomPhoto = dto.NomPhoto,
-                uriPhoto = dto.UriPhoto,
-                idTypeProduit = dto.IdTypeProduit,
-                idMarque = dto.IdMarque,
-                stockReel = dto.StockReel,
-                stockMin = dto.StockMin,
-                stockMax = dto.StockMax
-            };
+            var entity = mapper.Map<Produit>(dto);
 
             await manager.UpdateAsync(userToUpdate, entity);
 

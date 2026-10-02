@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using R508_Revisions.Model.Mapping;
 using R508_Revisions.Model.DTO;
 using R508_Revisions.Model.EntityFramework;
 using R508_Revisions.Model.Repository;
@@ -14,6 +16,7 @@ namespace R508_Revisions.Controller.Tests
         private ProduitsDBContext _context = null!;
         private IProduitRepository _repository = null!;
         private ProduitController _controller = null!;
+        private IMapper _mapper = null!;
 
         private readonly string _connectionString = "Server=localhost;Port=5432;Database=DB_R508_TP1REV_TEST;Uid=postgres;Password=postgres;";
 
@@ -30,7 +33,14 @@ namespace R508_Revisions.Controller.Tests
             await _context.Database.EnsureCreatedAsync();
 
             _repository = new ProduitRepository(_context);
-            _controller = new ProduitController(_repository);
+
+            var config = new MapperConfiguration(cfg => {
+                cfg.ShouldMapMethod = _ => false;
+                cfg.AddProfile<MappingProfile>();
+            });
+
+            _mapper = config.CreateMapper();
+            _controller = new ProduitController(_repository, _mapper);
         }
 
         [TestCleanup]
