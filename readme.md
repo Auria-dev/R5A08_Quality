@@ -50,3 +50,6 @@ The API will start listening at `http://localhost:5054`. Note that running via t
 dotnet run --project R5A08_Client
 ```
 The Blazor client will then be available at `http://localhost:5154`.
+
+
+This project is available on github at https://github.com/Auria-dev/R5A08_Quality

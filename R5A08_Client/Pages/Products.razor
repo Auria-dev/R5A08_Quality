@@ -4,82 +4,100 @@
 @implements IDisposable
 @inject ProductsViewModel ViewModel
 
-<PageTitle>Products</PageTitle>
+<PageTitle>Products - R5A08 Quality</PageTitle>
 
-<h1>Product Management</h1>
+<div class="mb-4">
+    <h1 class="h2 fw-bold mb-1">Product Management</h1>
+    <p class="mb-0" style="color: #948b89;">Search, filter and manage product items</p>
+</div>
 
 <div class="row my-3">
     <div class="col-md-6">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="Search by name..."
                    @bind="ViewModel.SearchName" @bind:event="oninput" />
-            <button class="btn btn-primary" @onclick="ViewModel.SearchByNameAsync">Search</button>
-            <button class="btn btn-outline-secondary" @onclick="ViewModel.ResetAsync">Reset</button>
+            <button class="btn btn-search" @onclick="ViewModel.SearchByNameAsync">Search</button>
+            <button class="btn btn-reset" @onclick="ViewModel.ResetAsync">Reset</button>
         </div>
     </div>
 </div>
 
 @if (!string.IsNullOrEmpty(ViewModel.Message))
 {
-    <div class="alert alert-info">@ViewModel.Message</div>
+    <div class="alert alert-info mb-3">
+        <span>@ViewModel.Message</span>
+    </div>
 }
 
 @if (ViewModel.IsLoading)
 {
-    <p><em>Loading...</em></p>
+    <div class="my-4">
+        <span style="color: #948b89;">Loading products...</span>
+    </div>
 }
 else if (ViewModel.Products != null)
 {
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Brand</th>
-                <th>Type</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in ViewModel.Products)
-            {
-                <tr>
-                    <td>@item.Id</td>
-                    <td>@item.Name</td>
-                    <td>@item.Description</td>
-                    <td><span class="badge bg-secondary">@item.Brand</span></td>
-                    <td><span class="badge bg-info text-dark">@item.ProductType</span></td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Brand</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!ViewModel.Products.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4" style="color: #948b89;">No products found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in ViewModel.Products)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#@item.Id</td>
+                                <td class="fw-medium">@item.Name</td>
+                                <td style="color: #948b89;">@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</td>
+                                <td><span class="badge badge-brand">@item.Brand</span></td>
+                                <td><span class="badge badge-type">@item.ProductType</span></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
 
-<hr />
-
-<div class="card p-3 my-4">
-    <h3>Add a Product</h3>
+<div class="card p-4 my-4">
+    <h3 class="h5 fw-semibold mb-3">Add New Product</h3>
     <EditForm Model="ViewModel.NewProduct" OnValidSubmit="ViewModel.AddProductAsync">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
         <div class="row">
-            <div class="col-md-6 mb-2">
-                <label class="form-label">Product Name:</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Name" />
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Product Name</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Name" placeholder="Enter product name" />
                 <ValidationMessage For="() => ViewModel.NewProduct.Name" />
             </div>
-            <div class="col-md-6 mb-2">
-                <label class="form-label">Description:</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Description" />
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Description</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Description" placeholder="Enter description" />
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-6 mb-2">
-                <label class="form-label">Product Type:</label>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Product Type</label>
                 <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.ProductTypeId">
-                    <option value="0">-- Select a type --</option>
+                    <option value="0">-- Select type --</option>
                     @foreach (var type in ViewModel.ProductTypes)
                     {
                         <option value="@type.Id">@type.Name</option>
@@ -87,10 +105,10 @@ else if (ViewModel.Products != null)
                 </InputSelect>
                 <ValidationMessage For="() => ViewModel.NewProduct.ProductTypeId" />
             </div>
-            <div class="col-md-6 mb-2">
-                <label class="form-label">Brand:</label>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Brand</label>
                 <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.BrandId">
-                    <option value="0">-- Select a brand --</option>
+                    <option value="0">-- Select brand --</option>
                     @foreach (var brand in ViewModel.Brands)
                     {
                         <option value="@brand.Id">@brand.Name</option>
@@ -101,17 +119,19 @@ else if (ViewModel.Products != null)
         </div>
 
         <div class="row">
-            <div class="col-md-6 mb-2">
-                <label class="form-label">Photo Name:</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoName" />
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Photo Name</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoName" placeholder="photo.png" />
             </div>
-            <div class="col-md-6 mb-2">
-                <label class="form-label">Photo URI:</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoUri" />
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Photo URI</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoUri" placeholder="https://..." />
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success mt-2" disabled="@ViewModel.IsLoading">Create Product</button>
+        <button type="submit" class="btn btn-success mt-2" disabled="@ViewModel.IsLoading">
+            Create Product
+        </button>
     </EditForm>
 </div>
 

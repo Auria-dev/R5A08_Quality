@@ -4,55 +4,75 @@
 @implements IDisposable
 @inject BrandsViewModel ViewModel
 
-<PageTitle>Brands</PageTitle>
+<PageTitle>Brands - R5A08 Quality</PageTitle>
 
-<h1>Brand Management</h1>
+<div class="mb-4">
+    <h1 class="h2 fw-bold mb-1">Brand Management</h1>
+    <p class="mb-0" style="color: #948b89;">View registered brands and add new brand entries</p>
+</div>
 
 @if (!string.IsNullOrEmpty(ViewModel.Message))
 {
-    <div class="alert alert-info">@ViewModel.Message</div>
+    <div class="alert alert-info mb-3">
+        <span>@ViewModel.Message</span>
+    </div>
 }
 
 @if (ViewModel.IsLoading)
 {
-    <p><em>Loading...</em></p>
+    <div class="my-4">
+        <span style="color: #948b89;">Loading brands...</span>
+    </div>
 }
 else if (ViewModel.Brands != null)
 {
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Brand Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in ViewModel.Brands)
-            {
-                <tr>
-                    <td>@item.Id</td>
-                    <td>@item.Name</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 120px;">ID</th>
+                        <th>Brand Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!ViewModel.Brands.Any())
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center py-4" style="color: #948b89;">No brands found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in ViewModel.Brands)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#@item.Id</td>
+                                <td class="fw-medium">@item.Name</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
 
-<hr />
-
-<div class="card p-3 my-4">
-    <h3>Add a Brand</h3>
+<div class="card p-4 my-4">
+    <h3 class="h5 fw-semibold mb-3">Add New Brand</h3>
     <EditForm Model="ViewModel.NewBrand" OnValidSubmit="ViewModel.AddBrandAsync">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
         <div class="mb-3">
-            <label class="form-label">Brand Name:</label>
-            <InputText class="form-control" @bind-Value="ViewModel.NewBrand.Name" />
+            <label class="form-label">Brand Name</label>
+            <InputText class="form-control" @bind-Value="ViewModel.NewBrand.Name" placeholder="Enter brand name" />
             <ValidationMessage For="() => ViewModel.NewBrand.Name" />
         </div>
 
-        <button type="submit" class="btn btn-success" disabled="@ViewModel.IsLoading">Create Brand</button>
+        <button type="submit" class="btn btn-success" disabled="@ViewModel.IsLoading">
+            Create Brand
+        </button>
     </EditForm>
 </div>
 
@@ -66,4 +86,3 @@ else if (ViewModel.Brands != null)
     private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e) => InvokeAsync(StateHasChanged);
     public void Dispose() => ViewModel.PropertyChanged -= OnViewModelChanged;
 }
-

@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -6,11 +7,17 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <div></div>
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank" class="text-decoration-none">
+                About
+            </a>
         </div>
 
-        <article class="content px-4">
+        <article class="content px-4 py-3 page-animate">
             @Body
         </article>
     </main>
 </div>
+
+<Toasts class="p-3" AutoHide="true" Delay="4000" Placement="ToastsPlacement.TopRight" />
+<ConfirmDialog />

@@ -32,6 +32,8 @@ namespace R5A08_Client
             builder.Services.AddScoped<BrandsViewModel>();
             builder.Services.AddScoped<ProductTypesViewModel>();
 
+            builder.Services.AddBlazorBootstrap();
+
             await builder.Build().RunAsync();
         }
     }
