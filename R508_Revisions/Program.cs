@@ -28,6 +28,15 @@ namespace R508_Revisions
             // Database connection configuration
             builder.Services.AddDbContext<ProduitsDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbCoreConnectionString")));
 
+            // Corse
+            builder.Services.AddCors(options => {
+                options.AddPolicy("AllowBlazor", policy => {
+                    policy.AllowAnyOrigin()  // ou .WithOrigins("https://localhost:XXXX") avec le port de Blazor
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
             builder.Services.AddAutoMapper(cfg => {
                 cfg.ShouldMapMethod = _ => false;
             }, typeof(MappingProfile));
@@ -41,6 +50,7 @@ namespace R508_Revisions
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowBlazor");
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();

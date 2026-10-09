@@ -61,6 +61,8 @@ namespace R508_Revisions.Model.Repository.Implementation
         public async Task<IEnumerable<Produit>> SearchByNameAsync(string term)
         {
             return await context.Produits
+                .Include(p => p.idMarqueNavigation)
+                .Include(p => p.idTypeProduitNavigation)
                 .Where(e => EF.Functions.Like(e.nomProduit, $"%{term}%"))
                 .ToListAsync();
         }

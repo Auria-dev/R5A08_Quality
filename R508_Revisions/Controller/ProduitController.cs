@@ -52,7 +52,7 @@ namespace R508_Revisions.Controller
 
         [HttpGet]
         [Route("[action]/{idProduit}")]
-        [ActionName("GetProduitsById")]
+        [ActionName("GetProduitById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProduitDetailDto>> GetProduitById(int idProduit)
@@ -91,6 +91,16 @@ namespace R508_Revisions.Controller
             var dtos = mapper.Map<IEnumerable<ProduitDto>>(produits);
 
             return Ok(dtos);
+        }
+
+        [HttpGet]
+        [Route("[action]/{term}")]
+        [ActionName("SearchProduits")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ProduitDto>>> SearchByName(string term)
+        {
+            var produits = await manager.SearchByNameAsync(term);
+            return Ok(mapper.Map<IEnumerable<ProduitDto>>(produits));
         }
 
         [HttpPut("{id}")]

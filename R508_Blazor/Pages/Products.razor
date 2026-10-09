@@ -1,0 +1,103 @@
+﻿@page "/products"
+@using System.ComponentModel
+@using R508_Blazor.ViewModels
+@implements IDisposable
+@inject ProductsViewModel ViewModel
+
+<PageTitle>Produits</PageTitle>
+
+<h1>Gestion des Produits</h1>
+
+<!-- Barre de recherche -->
+<div class="row my-3">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Nom à rechercher..."
+                   @bind="ViewModel.SearchName" @bind:event="oninput" />
+            <button class="btn btn-primary" @onclick="ViewModel.SearchByNameAsync">Rechercher</button>
+            <button class="btn btn-outline-secondary" @onclick="ViewModel.ResetAsync">Réinitialiser</button>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(ViewModel.Message))
+{
+    <div class="alert alert-info">@ViewModel.Message</div>
+}
+
+@if (ViewModel.IsLoading)
+{
+    <p><em>Chargement...</em></p>
+}
+else if (ViewModel.Produits != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Marque</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewModel.Produits)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Nom</td>
+                    <td>@item.Description</td>
+                    <td>@item.Marque</td>
+                    <td>@item.Type</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<!-- Formulaire d'ajout -->
+<h3>Ajouter un produit</h3>
+<EditForm Model="ViewModel.NouveauProduit" OnValidSubmit="ViewModel.AddProduitAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label class="form-label">Nom du produit :</label>
+        <InputText class="form-control" @bind-Value="ViewModel.NouveauProduit.NomProduit" />
+        <ValidationMessage For="() => ViewModel.NouveauProduit.NomProduit" />
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Description :</label>
+        <InputText class="form-control" @bind-Value="ViewModel.NouveauProduit.Description" />
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-2">
+            <label class="form-label">ID Type Produit :</label>
+            <InputNumber class="form-control" @bind-Value="ViewModel.NouveauProduit.IdTypeProduit" />
+            <ValidationMessage For="() => ViewModel.NouveauProduit.IdTypeProduit" />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label class="form-label">ID Marque :</label>
+            <InputNumber class="form-control" @bind-Value="ViewModel.NouveauProduit.IdMarque" />
+            <ValidationMessage For="() => ViewModel.NouveauProduit.IdMarque" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success mt-2" disabled="@ViewModel.IsLoading">Créer le produit</button>
+</EditForm>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelChanged;
+        await ViewModel.LoadDataAsync();
+    }
+
+    private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e)
+        => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+        => ViewModel.PropertyChanged -= OnViewModelChanged;
+}
