@@ -66,8 +66,8 @@ namespace R508_Revisions.Controller
             var existingEntity = await _repository.GetByIdAsync(id);
             if (existingEntity == null) return NotFound();
 
-            var newEntity = _mapper.Map<ProductType>(dto);
-            await _repository.UpdateAsync(newEntity);
+            _mapper.Map(dto, existingEntity);
+            await _repository.UpdateAsync(existingEntity);
 
             return NoContent();
         }

@@ -14,7 +14,14 @@ namespace R508_Revisions.Model.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.nomProduit))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => src.idTypeProduitNavigation != null ? src.idTypeProduitNavigation.nomTypeProduit : null))
-                .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.idMarqueNavigation != null ? src.idMarqueNavigation.nomMarque : null));
+                .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.idMarqueNavigation != null ? src.idMarqueNavigation.nomMarque : null))
+                .ForMember(dest => dest.ProductTypeId, opt => opt.MapFrom(src => src.idTypeProduit))
+                .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.idMarque))
+                .ForMember(dest => dest.PhotoName, opt => opt.MapFrom(src => src.nomPhoto))
+                .ForMember(dest => dest.PhotoUri, opt => opt.MapFrom(src => src.uriPhoto))
+                .ForMember(dest => dest.CurrentStock, opt => opt.MapFrom(src => src.stockReel))
+                .ForMember(dest => dest.MinStock, opt => opt.MapFrom(src => src.stockMin))
+                .ForMember(dest => dest.MaxStock, opt => opt.MapFrom(src => src.stockMax));
 
             CreateMap<Product, ProductDetailDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.idProduit))

@@ -6,134 +6,352 @@
 
 <PageTitle>Products - R5A08 Quality</PageTitle>
 
-<div class="mb-4">
-    <h1 class="h2 fw-bold mb-1">Product Management</h1>
-    <p class="mb-0" style="color: #948b89;">Search, filter and manage product items</p>
-</div>
-
-<div class="row my-3">
-    <div class="col-md-6">
-        <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search by name..."
-                   @bind="ViewModel.SearchName" @bind:event="oninput" />
-            <button class="btn btn-search" @onclick="ViewModel.SearchByNameAsync">Search</button>
-            <button class="btn btn-reset" @onclick="ViewModel.ResetAsync">Reset</button>
+@if (ViewModel.SelectedProduct == null && !ViewModel.IsAddingNew)
+{
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h2 fw-bold mb-0">Products</h1>
+        </div>
+        <div>
+            <button class="btn btn-primary mt-2 mt-md-0" @onclick="ViewModel.StartAddNew">
+                + Add Product
+            </button>
         </div>
     </div>
-</div>
 
-@if (!string.IsNullOrEmpty(ViewModel.Message))
-{
-    <div class="alert alert-info mb-3">
-        <span>@ViewModel.Message</span>
+    <div class="row my-3">
+        <div class="col-md-6">
+            <div class="search-group">
+                <input type="text" class="search-input" placeholder="Search by name..."
+                       @bind="ViewModel.SearchName" @bind:event="oninput" />
+                <button class="btn btn-search" @onclick="ViewModel.SearchByNameAsync">Search</button>
+                <button class="btn btn-reset" @onclick="ViewModel.ResetAsync">Reset</button>
+            </div>
+        </div>
     </div>
-}
 
-@if (ViewModel.IsLoading)
-{
-    <div class="my-4">
-        <span style="color: #948b89;">Loading products...</span>
-    </div>
-}
-else if (ViewModel.Products != null)
-{
-    <div class="card overflow-hidden mb-4">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Brand</th>
-                        <th>Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!ViewModel.Products.Any())
-                    {
+    @if (!string.IsNullOrEmpty(ViewModel.Message))
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <span>@ViewModel.Message</span>
+            <button type="button" class="btn-close" @onclick="() => ViewModel.Message = null"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <strong>Validation / Operation Error:</strong>
+            <div>@ViewModel.ErrorMessage</div>
+            <button type="button" class="btn-close" @onclick="() => ViewModel.ErrorMessage = null"></button>
+        </div>
+    }
+
+    @if (ViewModel.IsLoading && (ViewModel.Products == null || !ViewModel.Products.Any()))
+    {
+        <div class="my-4">
+            <span style="color: #948b89;">Loading products...</span>
+        </div>
+    }
+    else if (ViewModel.Products != null)
+    {
+        <div class="card overflow-hidden mb-4">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
                         <tr>
-                            <td colspan="5" class="text-center py-4" style="color: #948b89;">No products found.</td>
+                            <th style="width: 80px; cursor: pointer;" class="user-select-none" @onclick='() => ViewModel.SortBy("Id")'>
+                                ID <span class="ms-1 small text-muted">@ViewModel.GetSortIcon("Id")</span>
+                            </th>
+                            <th style="cursor: pointer;" class="user-select-none" @onclick='() => ViewModel.SortBy("Name")'>
+                                Name <span class="ms-1 small text-muted">@ViewModel.GetSortIcon("Name")</span>
+                            </th>
+                            <th style="cursor: pointer;" class="user-select-none" @onclick='() => ViewModel.SortBy("Description")'>
+                                Description <span class="ms-1 small text-muted">@ViewModel.GetSortIcon("Description")</span>
+                            </th>
+                            <th style="cursor: pointer;" class="user-select-none" @onclick='() => ViewModel.SortBy("Brand")'>
+                                Brand <span class="ms-1 small text-muted">@ViewModel.GetSortIcon("Brand")</span>
+                            </th>
+                            <th style="cursor: pointer;" class="user-select-none" @onclick='() => ViewModel.SortBy("ProductType")'>
+                                Type <span class="ms-1 small text-muted">@ViewModel.GetSortIcon("ProductType")</span>
+                            </th>
+                            <th style="width: 110px;" class="text-end">Action</th>
                         </tr>
-                    }
-                    else
-                    {
-                        @foreach (var item in ViewModel.Products)
+                    </thead>
+                    <tbody>
+                        @if (!ViewModel.Products.Any())
                         {
                             <tr>
-                                <td class="fw-semibold">#@item.Id</td>
-                                <td class="fw-medium">@item.Name</td>
-                                <td style="color: #948b89;">@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</td>
-                                <td><span class="badge badge-brand">@item.Brand</span></td>
-                                <td><span class="badge badge-type">@item.ProductType</span></td>
+                                <td colspan="6" class="text-center py-4" style="color: #948b89;">No products found.</td>
                             </tr>
                         }
-                    }
-                </tbody>
-            </table>
+                        else
+                        {
+                            @foreach (var item in ViewModel.Products)
+                            {
+                                <tr class="product-select-row" @onclick="() => ViewModel.SelectProduct(item)">
+                                    <td class="fw-semibold">#@item.Id</td>
+                                    <td class="fw-medium">@item.Name</td>
+                                    <td style="color: #948b89;">@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</td>
+                                    <td><span class="badge badge-brand">@item.Brand</span></td>
+                                    <td><span class="badge badge-type">@item.ProductType</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary" @onclick:stopPropagation="true" @onclick="() => ViewModel.SelectProduct(item)">
+                                            Select
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+else if (ViewModel.SelectedProduct != null)
+{
+    <div class="mb-4">
+        <button class="btn btn-secondary btn-sm mb-3" @onclick="ViewModel.BackToList">
+            &larr; Back to Products
+        </button>
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <div>
+                <h1 class="h2 fw-bold mb-0">Edit Product #@ViewModel.SelectedProduct.Id</h1>
+            </div>
+            <div>
+                <button class="btn btn-danger btn-sm" @onclick="() => ViewModel.DeleteProductAsync(ViewModel.SelectedProduct.Id)">
+                    Delete Product
+                </button>
+            </div>
         </div>
     </div>
+
+    @if (!string.IsNullOrEmpty(ViewModel.Message))
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <span>@ViewModel.Message</span>
+            <button type="button" class="btn-close" @onclick="() => ViewModel.Message = null"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <strong>Validation / Operation Error:</strong>
+            <div>@ViewModel.ErrorMessage</div>
+            <button type="button" class="btn-close" @onclick="() => ViewModel.ErrorMessage = null"></button>
+        </div>
+    }
+
+    <div class="card p-4 mb-4">
+        <EditForm Model="ViewModel.EditingProduct" OnValidSubmit="ViewModel.UpdateProductAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger mb-4" />
+
+            <div class="mb-4">
+                <div class="form-section-title">General Information</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Product Name</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.EditingProduct.Name" placeholder="Enter product name" />
+                        <ValidationMessage For="() => ViewModel.EditingProduct.Name" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Description</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.EditingProduct.Description" placeholder="Enter description" />
+                        <ValidationMessage For="() => ViewModel.EditingProduct.Description" class="text-danger small mt-1" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-section-title">Classification</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Product Type</label>
+                        <InputSelect class="form-select" @bind-Value="ViewModel.EditingProduct.ProductTypeId">
+                            <option value="0">-- Select type --</option>
+                            @foreach (var type in ViewModel.ProductTypes)
+                            {
+                                <option value="@type.Id">@type.Name</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => ViewModel.EditingProduct.ProductTypeId" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Brand</label>
+                        <InputSelect class="form-select" @bind-Value="ViewModel.EditingProduct.BrandId">
+                            <option value="0">-- Select brand --</option>
+                            @foreach (var brand in ViewModel.Brands)
+                            {
+                                <option value="@brand.Id">@brand.Name</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => ViewModel.EditingProduct.BrandId" class="text-danger small mt-1" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-section-title">Stock & Inventory Controls</div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Current Stock</label>
+                        <InputNumber class="form-control" @bind-Value="ViewModel.EditingProduct.CurrentStock" />
+                        <ValidationMessage For="() => ViewModel.EditingProduct.CurrentStock" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Min Stock</label>
+                        <InputNumber class="form-control" @bind-Value="ViewModel.EditingProduct.MinStock" />
+                        <ValidationMessage For="() => ViewModel.EditingProduct.MinStock" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Max Stock</label>
+                        <InputNumber class="form-control" @bind-Value="ViewModel.EditingProduct.MaxStock" />
+                        <ValidationMessage For="() => ViewModel.EditingProduct.MaxStock" class="text-danger small mt-1" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-section-title">Media & Photo Information</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Photo Name</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.EditingProduct.PhotoName" placeholder="photo.png" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Photo URI</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.EditingProduct.PhotoUri" placeholder="/images/photo.png" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 pt-2">
+                <button type="submit" class="btn btn-primary" disabled="@ViewModel.IsLoading">
+                    Save Changes
+                </button>
+                <button type="button" class="btn btn-secondary" @onclick="ViewModel.BackToList">
+                    Cancel
+                </button>
+            </div>
+        </EditForm>
+    </div>
 }
-
-<div class="card p-4 my-4">
-    <h3 class="h5 fw-semibold mb-3">Add New Product</h3>
-    <EditForm Model="ViewModel.NewProduct" OnValidSubmit="ViewModel.AddProductAsync">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Product Name</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Name" placeholder="Enter product name" />
-                <ValidationMessage For="() => ViewModel.NewProduct.Name" />
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Description</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Description" placeholder="Enter description" />
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Product Type</label>
-                <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.ProductTypeId">
-                    <option value="0">-- Select type --</option>
-                    @foreach (var type in ViewModel.ProductTypes)
-                    {
-                        <option value="@type.Id">@type.Name</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="() => ViewModel.NewProduct.ProductTypeId" />
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Brand</label>
-                <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.BrandId">
-                    <option value="0">-- Select brand --</option>
-                    @foreach (var brand in ViewModel.Brands)
-                    {
-                        <option value="@brand.Id">@brand.Name</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="() => ViewModel.NewProduct.BrandId" />
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Photo Name</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoName" placeholder="photo.png" />
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Photo URI</label>
-                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoUri" placeholder="https://..." />
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-success mt-2" disabled="@ViewModel.IsLoading">
-            Create Product
+else if (ViewModel.IsAddingNew)
+{
+    <div class="mb-4">
+        <button class="btn btn-secondary btn-sm mb-3" @onclick="ViewModel.BackToList">
+            &larr; Back to Products
         </button>
-    </EditForm>
-</div>
+        <h1 class="h2 fw-bold mb-0">Add Product</h1>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <strong>Validation / Operation Error:</strong>
+            <div>@ViewModel.ErrorMessage</div>
+            <button type="button" class="btn-close" @onclick="() => ViewModel.ErrorMessage = null"></button>
+        </div>
+    }
+
+    <div class="card p-4 mb-4">
+        <EditForm Model="ViewModel.NewProduct" OnValidSubmit="ViewModel.AddProductAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger mb-4" />
+
+            <div class="mb-4">
+                <div class="form-section-title">General Information</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Product Name</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Name" placeholder="Enter product name" />
+                        <ValidationMessage For="() => ViewModel.NewProduct.Name" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Description</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Description" placeholder="Enter description" />
+                        <ValidationMessage For="() => ViewModel.NewProduct.Description" class="text-danger small mt-1" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-section-title">Classification</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Product Type</label>
+                        <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.ProductTypeId">
+                            <option value="0">-- Select type --</option>
+                            @foreach (var type in ViewModel.ProductTypes)
+                            {
+                                <option value="@type.Id">@type.Name</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => ViewModel.NewProduct.ProductTypeId" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Brand</label>
+                        <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.BrandId">
+                            <option value="0">-- Select brand --</option>
+                            @foreach (var brand in ViewModel.Brands)
+                            {
+                                <option value="@brand.Id">@brand.Name</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => ViewModel.NewProduct.BrandId" class="text-danger small mt-1" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-section-title">Stock & Inventory Controls</div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Current Stock</label>
+                        <InputNumber class="form-control" @bind-Value="ViewModel.NewProduct.CurrentStock" />
+                        <ValidationMessage For="() => ViewModel.NewProduct.CurrentStock" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Min Stock</label>
+                        <InputNumber class="form-control" @bind-Value="ViewModel.NewProduct.MinStock" />
+                        <ValidationMessage For="() => ViewModel.NewProduct.MinStock" class="text-danger small mt-1" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Max Stock</label>
+                        <InputNumber class="form-control" @bind-Value="ViewModel.NewProduct.MaxStock" />
+                        <ValidationMessage For="() => ViewModel.NewProduct.MaxStock" class="text-danger small mt-1" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-section-title">Media & Photo Information</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Photo Name</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoName" placeholder="photo.png" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Photo URI</label>
+                        <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoUri" placeholder="/images/photo.png" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 pt-2">
+                <button type="submit" class="btn btn-primary" disabled="@ViewModel.IsLoading">
+                    Create Product
+                </button>
+                <button type="button" class="btn btn-secondary" @onclick="ViewModel.BackToList">
+                    Cancel
+                </button>
+            </div>
+        </EditForm>
+    </div>
+}
 
 @code {
     protected override async Task OnInitializedAsync()

@@ -7,18 +7,27 @@
 <PageTitle>Product Types - R5A08 Quality</PageTitle>
 
 <div class="mb-4">
-    <h1 class="h2 fw-bold mb-1">Product Type Management</h1>
-    <p class="mb-0" style="color: #948b89;">View product categories and add new type classifications</p>
+    <h1 class="h2 fw-bold mb-0">Product Types</h1>
 </div>
 
 @if (!string.IsNullOrEmpty(ViewModel.Message))
 {
-    <div class="alert alert-info mb-3">
+    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
         <span>@ViewModel.Message</span>
+        <button type="button" class="btn-close" @onclick="() => ViewModel.Message = null"></button>
     </div>
 }
 
-@if (ViewModel.IsLoading)
+@if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        <strong>Validation / Operation Error:</strong>
+        <div>@ViewModel.ErrorMessage</div>
+        <button type="button" class="btn-close" @onclick="() => ViewModel.ErrorMessage = null"></button>
+    </div>
+}
+
+@if (ViewModel.IsLoading && (ViewModel.ProductTypes == null || !ViewModel.ProductTypes.Any()))
 {
     <div class="my-4">
         <span style="color: #948b89;">Loading product types...</span>
@@ -31,25 +40,63 @@ else if (ViewModel.ProductTypes != null)
             <table class="table align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 120px;">ID</th>
-                        <th>Product Type Name</th>
+                        <th style="width: 120px; cursor: pointer;" class="user-select-none" @onclick='() => ViewModel.SortBy("Id")'>
+                            ID <span class="ms-1 small text-muted">@ViewModel.GetSortIcon("Id")</span>
+                        </th>
+                        <th style="cursor: pointer;" class="user-select-none" @onclick='() => ViewModel.SortBy("Name")'>
+                            Product Type Name <span class="ms-1 small text-muted">@ViewModel.GetSortIcon("Name")</span>
+                        </th>
+                        <th style="width: 180px;" class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (!ViewModel.ProductTypes.Any())
                     {
                         <tr>
-                            <td colspan="2" class="text-center py-4" style="color: #948b89;">No product types found.</td>
+                            <td colspan="3" class="text-center py-4" style="color: #948b89;">No product types found.</td>
                         </tr>
                     }
                     else
                     {
                         @foreach (var item in ViewModel.ProductTypes)
                         {
-                            <tr>
-                                <td class="fw-semibold">#@item.Id</td>
-                                <td class="fw-medium">@item.Name</td>
-                            </tr>
+                            if (ViewModel.EditingProductTypeId == item.Id)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">#@item.Id</td>
+                                    <td>
+                                        <EditForm Model="ViewModel.EditingProductType" OnValidSubmit="ViewModel.UpdateProductTypeAsync">
+                                            <DataAnnotationsValidator />
+                                            <div class="input-group input-group-sm">
+                                                <InputText class="form-control form-control-sm" @bind-Value="ViewModel.EditingProductType.Name" placeholder="Product type name..." />
+                                                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                                <button type="button" class="btn btn-sm btn-secondary" @onclick="ViewModel.CancelEdit">Cancel</button>
+                                            </div>
+                                            <ValidationMessage For="() => ViewModel.EditingProductType.Name" class="text-danger small" />
+                                        </EditForm>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => ViewModel.DeleteProductTypeAsync(item.Id)">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="fw-semibold">#@item.Id</td>
+                                    <td class="fw-medium">@item.Name</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ViewModel.StartEdit(item)">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => ViewModel.DeleteProductTypeAsync(item.Id)">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
                         }
                     }
                 </tbody>
@@ -62,12 +109,12 @@ else if (ViewModel.ProductTypes != null)
     <h3 class="h5 fw-semibold mb-3">Add New Product Type</h3>
     <EditForm Model="ViewModel.NewProductType" OnValidSubmit="ViewModel.AddProductTypeAsync">
         <DataAnnotationsValidator />
-        <ValidationSummary />
+        <ValidationSummary class="text-danger mb-3" />
 
         <div class="mb-3">
             <label class="form-label">Product Type Name</label>
             <InputText class="form-control" @bind-Value="ViewModel.NewProductType.Name" placeholder="Enter product type name" />
-            <ValidationMessage For="() => ViewModel.NewProductType.Name" />
+            <ValidationMessage For="() => ViewModel.NewProductType.Name" class="text-danger small mt-1" />
         </div>
 
         <button type="submit" class="btn btn-success" disabled="@ViewModel.IsLoading">
