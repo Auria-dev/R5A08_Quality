@@ -64,13 +64,13 @@ namespace R508_Revisions.Migrations
                     table.PrimaryKey("PK_t_e_produit", x => x.prd_produit);
                     table.ForeignKey(
                         name: "fk_produit_marque",
-                        column: x => x.prd_idtype,
+                        column: x => x.prd_idmarque,
                         principalSchema: "public",
                         principalTable: "t_e_marque",
                         principalColumn: "mrq_id");
                     table.ForeignKey(
                         name: "fk_produit_typeproduit",
-                        column: x => x.prd_idmarque,
+                        column: x => x.prd_idtype,
                         principalSchema: "public",
                         principalTable: "t_e_typeproduit",
                         principalColumn: "tpp_id");

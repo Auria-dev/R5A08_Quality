@@ -124,17 +124,17 @@ namespace R508_Revisions.Migrations
 
             modelBuilder.Entity("R508_Revisions.Model.EntityFramework.Produit", b =>
                 {
-                    b.HasOne("R508_Revisions.Model.EntityFramework.TypeProduit", "idTypeProduitNavigation")
+                    b.HasOne("R508_Revisions.Model.EntityFramework.Marque", "idMarqueNavigation")
                         .WithMany("Produits")
                         .HasForeignKey("idMarque")
                         .IsRequired()
-                        .HasConstraintName("fk_produit_typeproduit");
+                        .HasConstraintName("fk_produit_marque");
 
-                    b.HasOne("R508_Revisions.Model.EntityFramework.Marque", "idMarqueNavigation")
+                    b.HasOne("R508_Revisions.Model.EntityFramework.TypeProduit", "idTypeProduitNavigation")
                         .WithMany("Produits")
                         .HasForeignKey("idTypeProduit")
                         .IsRequired()
-                        .HasConstraintName("fk_produit_marque");
+                        .HasConstraintName("fk_produit_typeproduit");
 
                     b.Navigation("idMarqueNavigation");
 
