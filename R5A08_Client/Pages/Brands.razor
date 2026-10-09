@@ -1,0 +1,69 @@
+@page "/brands"
+@using System.ComponentModel
+@using R5A08_Client.ViewModels
+@implements IDisposable
+@inject BrandsViewModel ViewModel
+
+<PageTitle>Brands</PageTitle>
+
+<h1>Brand Management</h1>
+
+@if (!string.IsNullOrEmpty(ViewModel.Message))
+{
+    <div class="alert alert-info">@ViewModel.Message</div>
+}
+
+@if (ViewModel.IsLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (ViewModel.Brands != null)
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Brand Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewModel.Brands)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<div class="card p-3 my-4">
+    <h3>Add a Brand</h3>
+    <EditForm Model="ViewModel.NewBrand" OnValidSubmit="ViewModel.AddBrandAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Brand Name:</label>
+            <InputText class="form-control" @bind-Value="ViewModel.NewBrand.Name" />
+            <ValidationMessage For="() => ViewModel.NewBrand.Name" />
+        </div>
+
+        <button type="submit" class="btn btn-success" disabled="@ViewModel.IsLoading">Create Brand</button>
+    </EditForm>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelChanged;
+        await ViewModel.LoadDataAsync();
+    }
+
+    private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e) => InvokeAsync(StateHasChanged);
+    public void Dispose() => ViewModel.PropertyChanged -= OnViewModelChanged;
+}
+

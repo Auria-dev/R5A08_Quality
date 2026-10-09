@@ -4,9 +4,9 @@ An ASP.NET Core REST API and Blazor WebAssembly application built according to m
 
 ## Architectural Overview
 
-The ASP.NET Core REST API is located inside the `R508_Revisions` project.
-The Blazor client following an MVVM pattern is located inside the `R508_Blazor` project.
-This solution also contains unit and integration tests inside the `R508_RevisionsTests` project.
+The ASP.NET Core REST API is located inside the `R5A08_API` project.
+The Blazor client following an MVVM pattern is located inside the `R5A08_Client` project.
+This solution also contains unit and integration tests inside the `R5A08_APITests` project.
 
 ## Divergence from the TDs
 
