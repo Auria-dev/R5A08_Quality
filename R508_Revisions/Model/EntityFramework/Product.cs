@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -6,7 +6,7 @@ namespace R508_Revisions.Model.EntityFramework
 {
     [PrimaryKey(nameof(idProduit))]
     [Table("t_e_produit")]
-    public class Produit
+    public class Product
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -49,11 +49,12 @@ namespace R508_Revisions.Model.EntityFramework
         public int stockMax { get; set; }
 
         [ForeignKey(nameof(idMarque))]
-        [InverseProperty(nameof(Marque.Produits))]
-        public virtual Marque idMarqueNavigation { get; set; } = null!;
+        [InverseProperty(nameof(Brand.Products))]
+        public virtual Brand idMarqueNavigation { get; set; } = null!;
 
         [ForeignKey(nameof(idTypeProduit))]
-        [InverseProperty(nameof(TypeProduit.Produits))]
-        public virtual TypeProduit idTypeProduitNavigation { get; set; } = null!;
-    }    
+        [InverseProperty(nameof(ProductType.Products))]
+        public virtual ProductType idTypeProduitNavigation { get; set; } = null!;
+    }
 }
+

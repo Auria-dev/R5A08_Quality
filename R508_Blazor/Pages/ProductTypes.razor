@@ -1,0 +1,69 @@
+@page "/producttypes"
+@using System.ComponentModel
+@using R508_Blazor.ViewModels
+@implements IDisposable
+@inject ProductTypesViewModel ViewModel
+
+<PageTitle>Product Types</PageTitle>
+
+<h1>Product Type Management</h1>
+
+@if (!string.IsNullOrEmpty(ViewModel.Message))
+{
+    <div class="alert alert-info">@ViewModel.Message</div>
+}
+
+@if (ViewModel.IsLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (ViewModel.ProductTypes != null)
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Product Type Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewModel.ProductTypes)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<div class="card p-3 my-4">
+    <h3>Add a Product Type</h3>
+    <EditForm Model="ViewModel.NewProductType" OnValidSubmit="ViewModel.AddProductTypeAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Product Type Name:</label>
+            <InputText class="form-control" @bind-Value="ViewModel.NewProductType.Name" />
+            <ValidationMessage For="() => ViewModel.NewProductType.Name" />
+        </div>
+
+        <button type="submit" class="btn btn-success" disabled="@ViewModel.IsLoading">Create Product Type</button>
+    </EditForm>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelChanged;
+        await ViewModel.LoadDataAsync();
+    }
+
+    private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e) => InvokeAsync(StateHasChanged);
+    public void Dispose() => ViewModel.PropertyChanged -= OnViewModelChanged;
+}
+

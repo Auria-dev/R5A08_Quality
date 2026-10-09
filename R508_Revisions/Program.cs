@@ -1,11 +1,9 @@
-
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using R508_Revisions.Model.EntityFramework;
 using R508_Revisions.Model.Mapping;
-using R508_Revisions.Model.Repository;
 using R508_Revisions.Model.Repository.Implementation;
+using R508_Revisions.Model.Repository.Interface;
 
 namespace R508_Revisions
 {
@@ -23,20 +21,24 @@ namespace R508_Revisions
             builder.Services.AddSwaggerGen();
 
             // Dependency Injection
-            builder.Services.AddScoped<IProduitRepository, ProduitRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+            builder.Services.AddScoped<IProductTypeRepository, ProductTypeRepository>();
 
-            // Database connection configuration
-            builder.Services.AddDbContext<ProduitsDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbCoreConnectionString")));
+            // Database connection
+            builder.Services.AddDbContext<ProduitsDBContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DbCoreConnectionString")));
 
-            // Corse
+            // CORS
             builder.Services.AddCors(options => {
                 options.AddPolicy("AllowBlazor", policy => {
-                    policy.AllowAnyOrigin()  // ou .WithOrigins("https://localhost:XXXX") avec le port de Blazor
+                    policy.AllowAnyOrigin()
                           .AllowAnyMethod()
                           .AllowAnyHeader();
                 });
             });
 
+            // AutoMapper configuration
             builder.Services.AddAutoMapper(cfg => {
                 cfg.ShouldMapMethod = _ => false;
             }, typeof(MappingProfile));

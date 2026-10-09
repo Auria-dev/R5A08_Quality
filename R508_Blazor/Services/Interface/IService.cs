@@ -1,4 +1,4 @@
-﻿namespace R508_Blazor.Services;
+﻿namespace R508_Blazor.Services.Interface;
 
 public interface IService<TRead, TCreate>
     where TRead : class

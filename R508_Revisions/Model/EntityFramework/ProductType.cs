@@ -1,13 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace R508_Revisions.Model.EntityFramework
 {
     [PrimaryKey(nameof(idTypeProduit))]
     [Table("t_e_typeproduit")]
-    public class TypeProduit
+    public class ProductType
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -17,8 +16,8 @@ namespace R508_Revisions.Model.EntityFramework
         [Column("tpp_nom")]
         public required string nomTypeProduit { get; set; }
 
-        [InverseProperty(nameof(Produit.idTypeProduitNavigation))]
-        public virtual ICollection<Produit> Produits { get; set; } = new List<Produit>();
-
+        [InverseProperty(nameof(Product.idTypeProduitNavigation))]
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
+

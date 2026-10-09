@@ -1,21 +1,20 @@
-﻿@page "/products"
+@page "/products"
 @using System.ComponentModel
 @using R508_Blazor.ViewModels
 @implements IDisposable
 @inject ProductsViewModel ViewModel
 
-<PageTitle>Produits</PageTitle>
+<PageTitle>Products</PageTitle>
 
-<h1>Gestion des Produits</h1>
+<h1>Product Management</h1>
 
-<!-- Barre de recherche -->
 <div class="row my-3">
     <div class="col-md-6">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Nom à rechercher..."
+            <input type="text" class="form-control" placeholder="Search by name..."
                    @bind="ViewModel.SearchName" @bind:event="oninput" />
-            <button class="btn btn-primary" @onclick="ViewModel.SearchByNameAsync">Rechercher</button>
-            <button class="btn btn-outline-secondary" @onclick="ViewModel.ResetAsync">Réinitialiser</button>
+            <button class="btn btn-primary" @onclick="ViewModel.SearchByNameAsync">Search</button>
+            <button class="btn btn-outline-secondary" @onclick="ViewModel.ResetAsync">Reset</button>
         </div>
     </div>
 </div>
@@ -27,29 +26,29 @@
 
 @if (ViewModel.IsLoading)
 {
-    <p><em>Chargement...</em></p>
+    <p><em>Loading...</em></p>
 }
-else if (ViewModel.Produits != null)
+else if (ViewModel.Products != null)
 {
-    <table class="table table-striped">
+    <table class="table table-striped align-middle">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nom</th>
+                <th>Name</th>
                 <th>Description</th>
-                <th>Marque</th>
+                <th>Brand</th>
                 <th>Type</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in ViewModel.Produits)
+            @foreach (var item in ViewModel.Products)
             {
                 <tr>
                     <td>@item.Id</td>
-                    <td>@item.Nom</td>
+                    <td>@item.Name</td>
                     <td>@item.Description</td>
-                    <td>@item.Marque</td>
-                    <td>@item.Type</td>
+                    <td><span class="badge bg-secondary">@item.Brand</span></td>
+                    <td><span class="badge bg-info text-dark">@item.ProductType</span></td>
                 </tr>
             }
         </tbody>
@@ -58,35 +57,63 @@ else if (ViewModel.Produits != null)
 
 <hr />
 
-<!-- Formulaire d'ajout -->
-<h3>Ajouter un produit</h3>
-<EditForm Model="ViewModel.NouveauProduit" OnValidSubmit="ViewModel.AddProduitAsync">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="card p-3 my-4">
+    <h3>Add a Product</h3>
+    <EditForm Model="ViewModel.NewProduct" OnValidSubmit="ViewModel.AddProductAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div class="mb-2">
-        <label class="form-label">Nom du produit :</label>
-        <InputText class="form-control" @bind-Value="ViewModel.NouveauProduit.NomProduit" />
-        <ValidationMessage For="() => ViewModel.NouveauProduit.NomProduit" />
-    </div>
-    <div class="mb-2">
-        <label class="form-label">Description :</label>
-        <InputText class="form-control" @bind-Value="ViewModel.NouveauProduit.Description" />
-    </div>
-    <div class="row">
-        <div class="col-md-6 mb-2">
-            <label class="form-label">ID Type Produit :</label>
-            <InputNumber class="form-control" @bind-Value="ViewModel.NouveauProduit.IdTypeProduit" />
-            <ValidationMessage For="() => ViewModel.NouveauProduit.IdTypeProduit" />
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Product Name:</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Name" />
+                <ValidationMessage For="() => ViewModel.NewProduct.Name" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Description:</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.Description" />
+            </div>
         </div>
-        <div class="col-md-6 mb-2">
-            <label class="form-label">ID Marque :</label>
-            <InputNumber class="form-control" @bind-Value="ViewModel.NouveauProduit.IdMarque" />
-            <ValidationMessage For="() => ViewModel.NouveauProduit.IdMarque" />
+
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Product Type:</label>
+                <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.ProductTypeId">
+                    <option value="0">-- Select a type --</option>
+                    @foreach (var type in ViewModel.ProductTypes)
+                    {
+                        <option value="@type.Id">@type.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => ViewModel.NewProduct.ProductTypeId" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Brand:</label>
+                <InputSelect class="form-select" @bind-Value="ViewModel.NewProduct.BrandId">
+                    <option value="0">-- Select a brand --</option>
+                    @foreach (var brand in ViewModel.Brands)
+                    {
+                        <option value="@brand.Id">@brand.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => ViewModel.NewProduct.BrandId" />
+            </div>
         </div>
-    </div>
-    <button type="submit" class="btn btn-success mt-2" disabled="@ViewModel.IsLoading">Créer le produit</button>
-</EditForm>
+
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Photo Name:</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoName" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Photo URI:</label>
+                <InputText class="form-control" @bind-Value="ViewModel.NewProduct.PhotoUri" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-2" disabled="@ViewModel.IsLoading">Create Product</button>
+    </EditForm>
+</div>
 
 @code {
     protected override async Task OnInitializedAsync()
@@ -95,9 +122,6 @@ else if (ViewModel.Produits != null)
         await ViewModel.LoadDataAsync();
     }
 
-    private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e)
-        => InvokeAsync(StateHasChanged);
-
-    public void Dispose()
-        => ViewModel.PropertyChanged -= OnViewModelChanged;
+    private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e) => InvokeAsync(StateHasChanged);
+    public void Dispose() => ViewModel.PropertyChanged -= OnViewModelChanged;
 }

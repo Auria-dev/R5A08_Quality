@@ -1,23 +1,32 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using R508_Blazor.Models;
-using R508_Blazor.Services;
+using R508_Blazor.Services.Interface;
 
 namespace R508_Blazor.ViewModels;
 
 public sealed partial class ProductsViewModel : ObservableObject
 {
-    private readonly IService<ProduitDto, ProduitCreateDto> _service;
+    private readonly IService<ProductDto, ProductCreateDto> _productService;
+    private readonly IService<BrandDto, BrandCreateDto> _brandService;
+    private readonly IService<ProductTypeDto, ProductTypeCreateDto> _productTypeService;
 
-    public ProductsViewModel(IService<ProduitDto, ProduitCreateDto> service)
+    public ProductsViewModel(
+        IService<ProductDto, ProductCreateDto> productService,
+        IService<BrandDto, BrandCreateDto> brandService,
+        IService<ProductTypeDto, ProductTypeCreateDto> productTypeService)
     {
-        _service = service;
+        _productService = productService;
+        _brandService = brandService;
+        _productTypeService = productTypeService;
     }
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string? _message;
-    [ObservableProperty] private IEnumerable<ProduitDto>? _produits = Array.Empty<ProduitDto>();
+    [ObservableProperty] private IEnumerable<ProductDto> _products = Array.Empty<ProductDto>();
+    [ObservableProperty] private IEnumerable<BrandDto> _brands = Array.Empty<BrandDto>();
+    [ObservableProperty] private IEnumerable<ProductTypeDto> _productTypes = Array.Empty<ProductTypeDto>();
     [ObservableProperty] private string _searchName = string.Empty;
-    [ObservableProperty] private ProduitCreateDto _nouveauProduit = new();
+    [ObservableProperty] private ProductCreateDto _newProduct = new();
 
     public async Task LoadDataAsync()
     {
@@ -25,16 +34,37 @@ public sealed partial class ProductsViewModel : ObservableObject
         Message = null;
         try
         {
-            Produits = await _service.GetAllAsync() ?? Array.Empty<ProduitDto>();
+            var productsTask = _productService.GetAllAsync();
+            var brandsTask = _brandService.GetAllAsync();
+            var productTypesTask = _productTypeService.GetAllAsync();
+
+            await Task.WhenAll(productsTask, brandsTask, productTypesTask);
+
+            Products = await productsTask ?? Array.Empty<ProductDto>();
+            Brands = await brandsTask ?? Array.Empty<BrandDto>();
+            ProductTypes = await productTypesTask ?? Array.Empty<ProductTypeDto>();
+
+            ResetNewProductDefaults();
         }
         catch (Exception ex)
         {
-            Message = $"Erreur : {ex.Message}";
+            Message = $"Error: {ex.Message}";
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    private void ResetNewProductDefaults()
+    {
+        NewProduct = new ProductCreateDto
+        {
+            PhotoName = "default.jpg",
+            PhotoUri = "/images/default.jpg",
+            BrandId = Brands.FirstOrDefault()?.Id ?? 0,
+            ProductTypeId = ProductTypes.FirstOrDefault()?.Id ?? 0
+        };
     }
 
     public async Task ResetAsync()
@@ -55,14 +85,14 @@ public sealed partial class ProductsViewModel : ObservableObject
         Message = null;
         try
         {
-            Produits = await _service.SearchByNameAsync(SearchName) ?? Array.Empty<ProduitDto>();
+            Products = await _productService.SearchByNameAsync(SearchName) ?? Array.Empty<ProductDto>();
 
-            if (!Produits.Any())
-                Message = "Aucun produit trouvé avec ce nom.";
+            if (!Products.Any())
+                Message = "No product found with this name.";
         }
         catch (Exception ex)
         {
-            Message = $"Erreur : {ex.Message}";
+            Message = $"Error: {ex.Message}";
         }
         finally
         {
@@ -70,21 +100,26 @@ public sealed partial class ProductsViewModel : ObservableObject
         }
     }
 
-    public async Task AddProduitAsync()
+    public async Task AddProductAsync()
     {
         IsLoading = true;
         Message = null;
         try
         {
-            await _service.AddAsync(NouveauProduit); // throws with the API's error body on failure
+            if (string.IsNullOrWhiteSpace(NewProduct.PhotoName))
+                NewProduct.PhotoName = "default.jpg";
+            if (string.IsNullOrWhiteSpace(NewProduct.PhotoUri))
+                NewProduct.PhotoUri = "/images/default.jpg";
 
-            NouveauProduit = new ProduitCreateDto();
-            await LoadDataAsync();                   // resets Message, so set ours after
-            Message = "Produit ajouté avec succès !";
+            await _productService.AddAsync(NewProduct);
+
+            ResetNewProductDefaults();
+            await LoadDataAsync();
+            Message = "Product successfully added!";
         }
         catch (Exception ex)
         {
-            Message = $"Impossible d'ajouter le produit : {ex.Message}";
+            Message = $"Could not add product: {ex.Message}";
         }
         finally
         {
