@@ -18,7 +18,7 @@ namespace R508_Revisions.Controller.Tests
         private ProductsController _controller = null!;
         private IMapper _mapper = null!;
 
-        private readonly string _connectionString = "Server=localhost;Port=5432;Database=DB_R508_TP1REV_TEST;Uid=postgres;Password=postgres;";
+        private readonly string _connectionString = "Server=localhost;Port=5432;Database=DB_R5A08_Quality_TEST;Uid=postgres;Password=postgres;";
 
         [TestInitialize]
         public async Task Setup()
