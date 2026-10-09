@@ -19,3 +19,34 @@ Controllers no longer expose raw database entities directly. I/O payloads instea
 ## Service Layer
 
 Having a dedicated service layer (such as `ProductService` for example) is a standard abstraction in larger enterprise systems with complex business logic where the data needs to be manipulated before it is served. This project focuses on straightforward CRUD operations and entity management, so omitting the intermediate service layer avoids redundant pass-through code without sacrificing clarity or maintainability. This therefore adheres to the 2-tier architecture demonstrated in the course material. Also this means it aligns with the YAGNI principle (*"You Ain't Gonna Need It"*) which is nice.
+
+## Project setup
+
+### Database setup
+Open `R5A08_API/appsettings.json` and ensure that the `Port`, `Uid`, and `Password` match your local PostgreSQL installation. 
+Then, manually create an empty database named `DB_R5A08_Quality`.
+
+Don't forget to update the connection settings inside `R5A08_APITests/Integration/Controller/ProductsControllerITests.cs` as well, although you do not need to manually create the database for the test project.
+
+Install `dotnet-ef` 8.0 on your machine using the following command:
+```bash
+dotnet tool install --global dotnet-ef --version 8.*
+```
+
+Then update your local database by applying all migrations:
+```bash
+dotnet ef database update --project R5A08_API
+```
+> A simple `Inserts.sql` script is provided to seed basic data into the database.
+
+### Running the project
+Both the API and the Client need to be running simultaneously for this project to work. You can start both of them as follows:
+```bash
+dotnet run --project R5A08_API
+```
+The API will start listening at `http://localhost:5054`. Note that running via the command line does not automatically launch Swagger UI, so if you want to test endpoints independently, you can use `curl`.
+
+```bash
+dotnet run --project R5A08_Client
+```
+The Blazor client will then be available at `http://localhost:5154`.
